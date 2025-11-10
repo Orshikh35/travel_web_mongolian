@@ -54,7 +54,7 @@ export default function Page() {
             scrolled ? "text-black" : "text-white/90"
           }`}
         >
-          {["Нүүр", "Үйлчилгээ", "Аялал", "Блог", "Холбоо"].map((t, i) => (
+          {["Гадаад аялал", "Дотоод аялал", "Мэдээлэл", "Холбоо барих"].map((t, i) => (
             <li key={i}>
               <a
                 href="#"
@@ -75,7 +75,7 @@ export default function Page() {
               : "border-white/60 text-white hover:bg-white/10"
           }`}
         >
-          Цаг авах
+          Бүртгүүлэх
         </button>
       </motion.nav>
 
