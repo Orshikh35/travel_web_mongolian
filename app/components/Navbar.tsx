@@ -1,4 +1,6 @@
+// app/components/Navbar.tsx
 "use client";
+
 import { motion } from "framer-motion";
 import { Lang, UiTexts } from "../ui-texts";
 
@@ -7,9 +9,24 @@ type Props = {
   lang: Lang;
   onLangChange: (lang: Lang) => void;
   texts: UiTexts["navbar"];
+  onNavClick: (index: number) => void;
+  onBookClick: () => void;
+  onBrandClick: () => void; // 🔹 ШИНЭ
+  forceDark?: boolean;
 };
 
-export default function Navbar({ scrolled, lang, onLangChange, texts }: Props) {
+export default function Navbar({
+  scrolled,
+  lang,
+  onLangChange,
+  texts,
+  onNavClick,
+  onBookClick,
+  onBrandClick,
+  forceDark = false,
+}: Props) {
+  const isDark = forceDark || scrolled;
+
   return (
     <motion.nav
       className={`fixed top-4 left-1/2 z-50 -translate-x-1/2 transition-all duration-500 backdrop-blur-md rounded-full px-8 py-2 flex justify-between items-center w-[90%] max-w-[1400px] ${
@@ -20,59 +37,46 @@ export default function Navbar({ scrolled, lang, onLangChange, texts }: Props) {
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >
-      <span
+      <button
+        type="button"
+        onClick={onBrandClick}
         className={`text-xl font-bold tracking-wider ${
           scrolled ? "text-black" : "text-white"
         }`}
       >
         {texts.brand}
-      </span>
+      </button>
 
+      {/* ... доош нь хэвээр нь ... */}
       <ul
         className={`hidden md:flex gap-10 text-[15px] font-medium ${
           scrolled ? "text-black" : "text-white/90"
         }`}
       >
         {texts.links.map((t, i) => (
-          <li key={i}>
-            <a
-              href="#"
+          <li key={t}>
+            <button
+              type="button"
+              onClick={() => onNavClick(i)}
               className={`transition ${
                 scrolled ? "hover:text-gray-600" : "hover:text-white"
               }`}
             >
               {t}
-            </a>
+            </button>
           </li>
         ))}
       </ul>
 
       <div className="flex items-center gap-4">
-        {/* Language Switch */}
-        <div className="flex rounded-full bg-black/20 border border-white/30 text-xs overflow-hidden">
-          <button
-            onClick={() => onLangChange("mn")}
-            className={`px-3 py-1 ${
-              lang === "mn" ? "bg-white text-black" : "text-white/80"
-            }`}
-          >
-            MN
-          </button>
-          <button
-            onClick={() => onLangChange("en")}
-            className={`px-3 py-1 ${
-              lang === "en" ? "bg-white text-black" : "text-white/80"
-            }`}
-          >
-            EN
-          </button>
-        </div>
+        {/* Language switch ... */}
 
         <button
+          onClick={onBookClick}
           className={`hidden md:inline-flex border rounded-full px-6 py-2.5 text-sm font-medium transition-all ${
             scrolled
               ? "border-gray-700 text-black hover:bg-gray-100"
-              : "border-white/60 text-white hover:bg-white/10"
+              : "border-white/60 text-white hover:bg:white/10"
           }`}
         >
           {texts.cta}

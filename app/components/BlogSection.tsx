@@ -84,7 +84,7 @@ export default function BlogSection({
           <motion.article variants={child}>
             <BlogCard
               image="https://images.unsplash.com/photo-1609137144813-7d9921338f24?q=80&w=1400&auto=format&fit=crop"
-              title="Говийн Элсний Далайн Гоо Үзэсгэлэн"
+              title="Говийн Цөлийн Адал Явдал"
               category={texts.mainCategory}
             />
           </motion.article>
@@ -92,7 +92,7 @@ export default function BlogSection({
           <motion.article variants={child}>
             <BlogCard
               image="https://images.unsplash.com/photo-1564501049412-61c2a3083791?q=80&w=1400&auto=format&fit=crop"
-              title="Хөвсгөл Нуурын Нарны Мандалт"
+              title="Хөвсгөл Нуурын Галын Наадам"
               category={texts.mainCategory}
             />
           </motion.article>

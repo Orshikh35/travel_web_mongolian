@@ -1,12 +1,15 @@
+// app/components/HeroSection.tsx
 "use client";
+
 import { motion } from "framer-motion";
 import { UiTexts } from "../ui-texts";
 
 type Props = {
   texts: UiTexts["hero"];
+  onCtaClick: () => void;
 };
 
-export default function HeroSection({ texts }: Props) {
+export default function HeroSection({ texts, onCtaClick }: Props) {
   return (
     <section className="relative h-screen w-full flex items-center justify-start">
       <div
@@ -51,11 +54,12 @@ export default function HeroSection({ texts }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.5 }}
           className="mt-10 bg-white text-black font-semibold px-8 py-3 rounded-full shadow-xl hover:shadow-4xl transition-all flex items-center gap-2 text-base"
+          onClick={onCtaClick}
         >
           {texts.cta} <span className="text-lg">→</span>
         </motion.button>
 
-        {/* Feature Boxes */}
+        {/* Features */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
