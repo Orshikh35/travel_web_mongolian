@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import BookTourPage from "./TourDetailPage";
 import TourDetailPage from "./TourDetailPage";
 
 export default function Page() {

@@ -1,136 +1,81 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
-type FooterProps = {
-    texts: {
-      aboutTitle: string;
-      supportTitle: string;
-      faqTitle: string;
-      infoTitle: string;
-      newsletterPlaceholder: string;
-      newsletterButton: string;
-      copyright: string;
-    };
-  };
-export default function Footer({ texts }: FooterProps) {
+import { useLanguage } from "../context/LanguageContext";
+import { TEXTS } from "../ui-texts";
+import Button from "./Button";
 
-  const [lang, setLang] = useState<"mn" | "en">("mn");
-
-  const t = {
-    mn: {
-      company: "Компани",
-      tours: "Аялалууд",
-      contact: "Холбоо барих",
-      about: "Бидний тухай",
-      blog: "Блог",
-      domestic: "Дотоод аялал",
-      outbound: "Гадаад аялал",
-      custom: "Захиалгат аялал",
-      rights: "Бүх эрх хуулиар хамгаалагдсан.",
-    },
-    en: {
-      company: "Company",
-      tours: "Tours",
-      contact: "Contact",
-      about: "About us",
-      blog: "Blog",
-      domestic: "Domestic Tours",
-      outbound: "Outbound Tours",
-      custom: "Custom Tours",
-      rights: "All rights reserved.",
-    },
-  };
-
-  const tr = t[lang];
+const Footer = () => {
+  const { lang } = useLanguage();
+  const t = TEXTS[lang].footer;
 
   return (
-    <footer className="bg-[#0a0a0a] text-white pt-14 pb-8 px-6 mt-16 border-t border-neutral-800">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer className="bg-white px-4 py-16 text-[#10231d] sm:px-6">
+      <div className="container-shell relative">
+        <div className="grid gap-8 rounded-[32px] border border-[#10231d]/8 bg-white p-8 shadow-[0_24px_80px_rgba(16,35,29,0.06)] lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
+          <div>
+            <div className="mb-5 flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#c7762b] via-[#e9b679] to-[#0f766e] text-sm font-bold text-white">
+                NH
+              </span>
+              <div>
+                <p className="text-xs uppercase tracking-[0.32em] text-[#5d6b65]">Travel Studio</p>
+                <h3 className="text-xl font-semibold">{TEXTS[lang].navbar.brand}</h3>
+              </div>
+            </div>
+            <p className="max-w-md text-sm leading-7 text-[#5d6b65]">{t.description}</p>
+          </div>
 
-        {/* LOGO + LANG SWITCH */}
-        <div>
-          <Image 
-            src="/logo-white.png" 
-            width={140} 
-            height={40} 
-            alt="Logo"
-            className="mb-3"
-          />
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-[#5d6b65]">{t.officeTitle}</h4>
+            <p className="text-sm leading-7 text-[#35514a]">{t.officeValue}</p>
+            <h4 className="mb-4 mt-8 text-sm font-semibold uppercase tracking-[0.24em] text-[#5d6b65]">{t.contactTitle}</h4>
+            <div className="space-y-2 text-sm text-[#35514a]">
+              {t.contactValue.map((item) => (
+                <p key={item}>{item}</p>
+              ))}
+            </div>
+          </div>
 
-          <p className="text-gray-400 text-sm mb-6">
-            Explore Mongolia and the world with unforgettable tour experiences.
-          </p>
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-[#5d6b65]">{t.quickLinksTitle}</h4>
+            <div className="space-y-3">
+              {t.quickLinks.map((link) => (
+                <Link
+                  key={`${link.href}-${link.label}`}
+                  href={link.href}
+                  className="block text-sm text-[#35514a] transition hover:text-[#10231d]"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={() => setLang("mn")}
-              className={`px-3 py-1 rounded text-sm ${
-                lang === "mn" ? "bg-white text-black" : "bg-neutral-700"
-              }`}
-            >
-              MN
-            </button>
-            <button
-              onClick={() => setLang("en")}
-              className={`px-3 py-1 rounded text-sm ${
-                lang === "en" ? "bg-white text-black" : "bg-neutral-700"
-              }`}
-            >
-              EN
-            </button>
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-[#5d6b65]">{t.newsletterTitle}</h4>
+            <p className="mb-5 text-sm leading-7 text-[#5d6b65]">{t.newsletterDescription}</p>
+            <form className="space-y-3">
+              <input
+                type="email"
+                placeholder={t.newsletterPlaceholder}
+                className="w-full rounded-2xl border border-[#10231d]/10 bg-[#fbfcfc] px-4 py-3 text-sm text-[#10231d] placeholder:text-[#7a8882] outline-none transition focus:border-[#0f766e]/30"
+              />
+              <Button variant="secondary" className="w-full justify-center">
+                {t.newsletterButton}
+              </Button>
+            </form>
           </div>
         </div>
 
-        {/* COMPANY */}
-        <div>
-          <h3 className="font-semibold mb-4 text-lg">{tr.company}</h3>
-          <ul className="space-y-2 text-gray-300 text-sm">
-            <li><Link href="/about" className="hover:text-white">{tr.about}</Link></li>
-            <li><Link href="/blog" className="hover:text-white">{tr.blog}</Link></li>
-            <li><Link href="/contact" className="hover:text-white">{tr.contact}</Link></li>
-          </ul>
+        <div className="mt-6 flex flex-col gap-3 px-2 text-sm text-[#7a8882] md:flex-row md:items-center md:justify-between">
+          <p>{t.copyright}</p>
+          <p>Designed for confident travel planning across Mongolia and international routes.</p>
         </div>
-
-        {/* TOURS */}
-        <div>
-          <h3 className="font-semibold mb-4 text-lg">{tr.tours}</h3>
-          <ul className="space-y-2 text-gray-300 text-sm">
-            <li><Link href="/tours/domestic" className="hover:text-white">{tr.domestic}</Link></li>
-            <li><Link href="/tours/outbound" className="hover:text-white">{tr.outbound}</Link></li>
-            <li><Link href="/tours/custom" className="hover:text-white">{tr.custom}</Link></li>
-          </ul>
-        </div>
-
-        {/* CONTACT */}
-        <div>
-          <h3 className="font-semibold mb-4 text-lg">{tr.contact}</h3>
-          <ul className="space-y-2 text-gray-300 text-sm">
-            <li>📞 +976 9911-2233</li>
-            <li>✉️ travel@yourcompany.mn</li>
-            <li>📍 Улаанбаатар, Монгол</li>
-          </ul>
-
-          <div className="flex gap-4 mt-4">
-            <Link href="https://facebook.com">
-              <Image src="/icons/facebook.svg" width={22} height={22} alt="fb" />
-            </Link>
-            <Link href="https://instagram.com">
-              <Image src="/icons/instagram.svg" width={22} height={22} alt="ig" />
-            </Link>
-            <Link href="https://youtube.com">
-              <Image src="/icons/youtube.svg" width={22} height={22} alt="yt" />
-            </Link>
-          </div>
-        </div>
-
-      </div>
-
-      {/* BOTTOM COPYRIGHT */}
-      <div className="mt-12 text-center text-gray-500 text-sm border-t border-neutral-800 pt-6">
-        © {new Date().getFullYear()} Travel Co. {tr.rights}
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

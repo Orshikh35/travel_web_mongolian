@@ -1,18 +1,45 @@
 // app/components/ToursSection.tsx
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type MotionProps, type Variants } from "framer-motion";
 import { useMemo, useState } from "react";
 import TourCard from "./TourCard";
-import { Lang, UiTexts } from "../ui-texts";
+import { Lang } from "../ui-texts";
 import { TOURS, Tour, TourCategory } from "../data/tours";
 import { useRouter } from "next/navigation";
 
+type ToursTexts = {
+  title: string;
+  subtitle: string;
+  filters: {
+    dateAny: string;
+    dateThisWeek: string;
+    dateThisMonth: string;
+    dateNextMonth: string;
+    budgetAll: string;
+    budgetLow: string;
+    budgetMid: string;
+    budgetHigh: string;
+    peopleAll: string;
+    people12: string;
+    people34: string;
+    people5plus: string;
+    searchPlaceholder: string;
+  };
+  categories: string[];
+  badgeNew: string;
+  badgePopular: string;
+  badgeSpecial: string;
+  noResult: string;
+};
+
+type MotionVariantFn = (delay?: number) => MotionProps;
+
 type Props = {
-  texts: UiTexts["tours"];
-  fadeUp: any;
-  staggerParent: any;
-  child: any;
+  texts: ToursTexts;
+  fadeUp: MotionVariantFn;
+  staggerParent: Variants;
+  child: Variants;
   lang: Lang;
   defaultCategory?: TourCategory | "all";
 
@@ -92,7 +119,7 @@ export default function ToursSection({
       // date одоогоор бодитоор filter хийхгүй
       return true;
     });
-  }, [selectedCategory, budget, people, date, search]);
+  }, [selectedCategory, budget, people, search]);
 
   const onCardClick = (tour: Tour) => {
     router.push(`/tours/${tour.slug}?lang=${lang}`);

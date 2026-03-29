@@ -1,19 +1,31 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import { LanguageProvider } from "./context/LanguageContext";
+import { TEXTS } from "./ui-texts";
 
 export const metadata: Metadata = {
-  title: "Magic of Bromo",
-  description: "Experience the Magic of Bromo – Travel, stays, and stories.",
+  title: TEXTS.en.meta.title,
+  description: TEXTS.en.meta.description,
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
-      <body className="font-body">{children}</body>
+      <body className="font-sans antialiased text-gray-900">
+        <LanguageProvider>
+          <Navbar />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

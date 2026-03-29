@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 
 export default function BookTourPage() {
@@ -14,7 +14,7 @@ export default function BookTourPage() {
   const [notes, setNotes] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const res = await fetch("/api/book", {

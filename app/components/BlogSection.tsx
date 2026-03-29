@@ -1,14 +1,24 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { UiTexts } from "../ui-texts";
+import { motion, type MotionProps, type Variants } from "framer-motion";
 import BlogCard from "./BlogCard";
 
+type BlogTexts = {
+  title: string;
+  description: string;
+  btn1: string;
+  btn2: string;
+  mainTitle: string;
+  mainCategory: string;
+};
+
+type MotionVariantFn = (delay?: number) => MotionProps;
+
 type Props = {
-  texts: UiTexts["blog"];
-  fadeUp: any;
-  staggerParent: any;
-  child: any;
+  texts: BlogTexts;
+  fadeUp: MotionVariantFn;
+  staggerParent: Variants;
+  child: Variants;
 };
 
 export default function BlogSection({
@@ -69,6 +79,7 @@ export default function BlogSection({
                 <div className="flex items-center gap-3">
                   <img
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"
+                    alt="Author portrait"
                     className="w-10 h-10 rounded-full object-cover"
                   />
                   <div>
