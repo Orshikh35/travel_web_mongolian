@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/book/layout,_N_T_/book/confirmation/layout,_N_T_/book/confirmation/page,_N_T_/book/confirmation"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/book/confirmation/__PAGE__",
+    "/book/confirmation",
+    "/book",
+    "/_index",
+    "/_head"
+  ]
+}

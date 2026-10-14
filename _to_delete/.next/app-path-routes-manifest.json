@@ -1,0 +1,16 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/about/page": "/about",
+  "/api/book/route": "/api/book",
+  "/book/confirmation/page": "/book/confirmation",
+  "/book/page": "/book",
+  "/contact/page": "/contact",
+  "/favicon.ico/route": "/favicon.ico",
+  "/home/page": "/home",
+  "/login/page": "/login",
+  "/page": "/",
+  "/register/page": "/register",
+  "/tours/[id]/page": "/tours/[id]",
+  "/tours/page": "/tours"
+}

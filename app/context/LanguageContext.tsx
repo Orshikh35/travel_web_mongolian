@@ -1,70 +1,45 @@
 "use client";
 
-import React, { createContext, useContext, useSyncExternalStore } from "react";
-import { Lang } from "../ui-texts";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { MotionConfig } from "framer-motion";
+import { LANG_COOKIE, LANG_META, Lang } from "../i18n/config";
+import { DICTIONARIES, Dictionary } from "../i18n/dictionaries";
 
 interface LanguageContextType {
   lang: Lang;
+  t: Dictionary;
   setLang: (lang: Lang) => void;
-  toggleLang: () => void;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const LANGUAGE_STORAGE_KEY = "language";
-const listeners = new Set<() => void>();
-
-const emitLanguageChange = () => {
-  listeners.forEach((listener) => listener());
+type Props = {
+  // Resolved on the server from the cookie or Accept-Language, so the first render is already in the right language.
+  initialLang: Lang;
+  children: React.ReactNode;
 };
 
-const readStoredLanguage = (): Lang => {
-  if (typeof window === "undefined") {
-    return "en";
-  }
+export const LanguageProvider = ({ initialLang, children }: Props) => {
+  const [lang, setLangState] = useState<Lang>(initialLang);
+  const t = DICTIONARIES[lang];
 
-  const savedLang = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  return savedLang === "mn" || savedLang === "en" ? savedLang : "en";
-};
+  const setLang = useCallback((next: Lang) => {
+    setLangState(next);
+    document.cookie = `${LANG_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
+  }, []);
 
-const subscribe = (listener: () => void) => {
-  listeners.add(listener);
+  useEffect(() => {
+    document.documentElement.lang = LANG_META[lang].htmlLang;
+    document.title = t.meta.title;
+  }, [lang, t]);
 
-  if (typeof window !== "undefined") {
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key === LANGUAGE_STORAGE_KEY) {
-        listener();
-      }
-    };
+  const value = useMemo(() => ({ lang, t, setLang }), [lang, t, setLang]);
 
-    window.addEventListener("storage", handleStorage);
-
-    return () => {
-      listeners.delete(listener);
-      window.removeEventListener("storage", handleStorage);
-    };
-  }
-
-  return () => {
-    listeners.delete(listener);
-  };
-};
-
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const lang = useSyncExternalStore<Lang>(subscribe, readStoredLanguage, () => "en");
-
-  const setLang = (newLang: Lang) => {
-    if (typeof window === "undefined") return;
-
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
-    emitLanguageChange();
-  };
-
-  const toggleLang = () => {
-    setLang(lang === "en" ? "mn" : "en");
-  };
-
-  return <LanguageContext.Provider value={{ lang, setLang, toggleLang }}>{children}</LanguageContext.Provider>;
+  return (
+    <LanguageContext.Provider value={value}>
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
+    </LanguageContext.Provider>
+  );
 };
 
 export const useLanguage = () => {

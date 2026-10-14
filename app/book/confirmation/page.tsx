@@ -1,71 +1,93 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
-import Button from "../../components/Button";
+import React, { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import Button from "../../components/Button";
+import { CheckIcon } from "../../components/Icons";
+import { useLanguage } from "../../context/LanguageContext";
+import { findTourBySlug } from "../../data/tours";
+import { formatDate } from "../../lib/format";
 
-const ConfirmationPage = () => {
-    return (
-        <div className="pt-32 pb-20 min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="container mx-auto px-4">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="max-w-2xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-card text-center"
-                >
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
+const ConfirmationView = () => {
+  const { lang, t } = useLanguage();
+  const c = t.confirmation;
+  const searchParams = useSearchParams();
+  const reference = searchParams.get("ref");
+  const tour = findTourBySlug(searchParams.get("tour") ?? undefined);
+  const date = searchParams.get("date");
+  const travelers = Number(searchParams.get("travelers"));
 
-                    <h1 className="text-3xl font-bold mb-2 font-heading text-gray-900">Booking Confirmed!</h1>
-                    <p className="text-gray-500 mb-8">
-                        Thank you for your booking. A confirmation email has been sent to your inbox.
-                    </p>
+  const rows = [
+    reference ? { label: c.reference, value: reference, mono: true } : null,
+    tour ? { label: c.tour, value: tour.title[lang] } : null,
+    date ? { label: c.date, value: formatDate(date, lang) } : null,
+    travelers > 0 ? { label: c.travelers, value: t.common.travelers(travelers) } : null,
+  ].filter((row) => row !== null);
 
-                    <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
-                        <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-4">
-                            <span className="text-sm text-gray-500">Booking ID</span>
-                            <span className="font-mono font-bold text-gray-900">#TRV-88291</span>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Tour</span>
-                                <span className="text-sm font-medium text-gray-900">Mount Bromo Sunrise</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Date</span>
-                                <span className="text-sm font-medium text-gray-900">Dec 15, 2025</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Travelers</span>
-                                <span className="text-sm font-medium text-gray-900">2 Adults</span>
-                            </div>
-                            <div className="flex justify-between pt-2 mt-2 border-t border-gray-200">
-                                <span className="text-sm font-bold text-gray-900">Total Paid</span>
-                                <span className="text-sm font-bold text-primary-600">$300.00</span>
-                            </div>
-                        </div>
-                    </div>
+  return (
+    <div className="flex min-h-screen items-center bg-canvas pt-32 pb-20">
+      <div className="container-shell">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="premium-card mx-auto max-w-2xl p-8 text-center md:p-12"
+        >
+          <motion.div
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.15 }}
+            className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand text-white shadow-[0_18px_40px_rgba(15,118,110,0.35)]"
+          >
+            <CheckIcon className="h-10 w-10" />
+          </motion.div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button variant="primary" leftIcon={
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                        }>
-                            Download Ticket
-                        </Button>
-                        <Button href="/" variant="outline">
-                            Return Home
-                        </Button>
-                    </div>
-                </motion.div>
-            </div>
-        </div>
-    );
+          <h1 className="mt-6 text-3xl font-extrabold tracking-[-0.035em] text-ink md:text-4xl">{c.title}</h1>
+          <p className="mx-auto mt-3 max-w-md text-[15px] leading-7 text-muted">{c.description}</p>
+
+          {rows.length ? (
+            <dl className="mt-8 space-y-3 rounded-3xl bg-canvas p-6 text-left">
+              {rows.map((row) => (
+                <div key={row.label} className="flex justify-between gap-6 text-sm">
+                  <dt className="text-muted">{row.label}</dt>
+                  <dd className={`text-right font-bold text-ink ${"mono" in row ? "font-mono" : ""}`}>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+
+          <div className="mt-8 text-left">
+            <h2 className="text-sm font-bold text-ink">{c.nextTitle}</h2>
+            <ol className="mt-4 space-y-3">
+              {c.next.map((step, index) => (
+                <li key={step} className="flex gap-3 text-sm leading-6 text-ink-soft">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-bold text-brand">
+                    {index + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button href="/tours" variant="primary">
+              {c.browse}
+            </Button>
+            <Button href="/" variant="outline">
+              {c.backHome}
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
 };
 
-export default ConfirmationPage;
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-canvas" />}>
+      <ConfirmationView />
+    </Suspense>
+  );
+}

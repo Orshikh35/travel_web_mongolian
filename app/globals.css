@@ -1,41 +1,85 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #10231d;
-  --surface: #ffffff;
-  --surface-strong: #ffffff;
-  --line: rgba(16, 35, 29, 0.09);
-  --primary: #0f766e;
-  --primary-strong: #115e59;
-  --accent: #c7762b;
-  --accent-soft: #f8efe2;
-  --ink-soft: #5d6b65;
-  --shadow: 0 28px 80px rgba(16, 35, 29, 0.08);
-}
+@theme {
+  --color-ink: #10231d;
+  --color-ink-soft: #35514a;
+  --color-muted: #5d6b65;
+  --color-faint: #7a8882;
+  --color-brand: #0f766e;
+  --color-brand-strong: #115e59;
+  --color-brand-soft: #eef6f4;
+  --color-sand: #c7762b;
+  --color-sand-strong: #a95f1c;
+  --color-sand-soft: #f7efe4;
+  --color-canvas: #f8f6f1;
+  --color-line: rgba(16, 35, 29, 0.09);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Poppins", sans-serif;
-  --font-mono: "SFMono-Regular", "Menlo", monospace;
+  /* Latin + Cyrillic from Manrope; CJK falls back to the best system font per platform. */
+  --font-sans:
+    var(--font-manrope), "PingFang SC", "Hiragino Sans", "Apple SD Gothic Neo", "Noto Sans CJK SC",
+    "Noto Sans JP", "Noto Sans KR", "Microsoft YaHei", "Malgun Gothic", "Yu Gothic", ui-sans-serif, system-ui,
+    sans-serif;
+
+  --shadow-soft: 0 18px 50px rgba(16, 35, 29, 0.06);
+  --shadow-lift: 0 28px 70px rgba(16, 35, 29, 0.12);
+
+  --animate-marquee: marquee 45s linear infinite;
+  --animate-float: float 14s ease-in-out infinite;
+  --animate-float-slow: float 22s ease-in-out infinite reverse;
+  --animate-scroll-cue: scroll-cue 1.8s ease-in-out infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    33% {
+      transform: translate3d(30px, -40px, 0) scale(1.08);
+    }
+    66% {
+      transform: translate3d(-25px, 20px, 0) scale(0.95);
+    }
+  }
+  @keyframes scroll-cue {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    70% {
+      transform: translateY(12px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+  }
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   min-height: 100vh;
   background: #ffffff;
-  color: var(--foreground);
-  font-family: "Poppins", sans-serif;
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body::before {
-  content: none;
+/* Tight Latin tracking looks cramped in CJK scripts; reset it and keep Korean words intact. */
+html:is(:lang(zh-CN), :lang(ja), :lang(ko)) * {
+  letter-spacing: 0 !important;
+}
+html:lang(ko) body {
+  word-break: keep-all;
 }
 
 ::selection {
@@ -43,78 +87,52 @@ body::before {
   color: #09201b;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(16, 35, 29, 0.18);
-  border-radius: 999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 35, 29, 0.28);
-}
-
-.container-shell {
+@utility container-shell {
   @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
 }
 
-.glass-panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-}
-
-.glass-panel-strong {
-  background: var(--surface-strong);
-  border: 1px solid rgba(16, 35, 29, 0.08);
-  box-shadow: 0 20px 60px rgba(16, 35, 29, 0.07);
-}
-
-.section-padding {
+@utility section-padding {
   @apply py-20 md:py-28;
 }
 
-.section-eyebrow {
-  @apply mb-4 inline-flex items-center gap-2 rounded-full border border-[#10231d]/10 bg-[#f8faf9] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#115e59];
+@utility section-eyebrow {
+  @apply mb-4 inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-4 py-2 text-xs font-semibold tracking-[0.2em] text-brand-strong uppercase;
 }
 
-.section-title {
-  @apply text-4xl font-semibold leading-tight tracking-[-0.04em] md:text-5xl;
-  font-family: "Poppins", sans-serif;
+@utility section-title {
+  @apply text-3xl leading-tight font-bold tracking-[-0.035em] text-balance text-ink sm:text-4xl md:text-5xl;
 }
 
-.section-copy {
-  @apply text-base leading-7 text-[color:var(--ink-soft)] md:text-lg;
+@utility section-copy {
+  @apply text-base leading-7 text-muted md:text-lg md:leading-8;
 }
 
-.premium-card {
-  @apply rounded-[28px] border bg-white;
-  border-color: rgba(16, 35, 29, 0.08);
-  box-shadow: 0 18px 50px rgba(16, 35, 29, 0.06);
+@utility premium-card {
+  @apply rounded-[28px] border border-ink/8 bg-white shadow-soft;
 }
 
-.ambient-orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(20px);
-  opacity: 0.55;
-  pointer-events: none;
+@utility field-label {
+  @apply mb-2 block text-sm font-semibold text-ink;
 }
 
-.ambient-orb.teal {
-  background: rgba(15, 118, 110, 0.22);
-}
-
-.ambient-orb.gold {
-  background: rgba(199, 118, 43, 0.18);
-}
-
-.text-balance {
-  text-wrap: balance;
+@utility field-input {
+  @apply w-full rounded-2xl border border-ink/12 bg-white px-4 py-3.5 text-[15px] text-ink transition outline-none placeholder:text-faint hover:border-ink/20 focus:border-brand focus:ring-4 focus:ring-brand/12;
 }
