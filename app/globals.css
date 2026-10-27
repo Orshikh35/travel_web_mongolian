@@ -1,32 +1,42 @@
 @import "tailwindcss";
 
+/* Eagle Land Tours — clean white canvas, deep night-navy ink and a single bright sky-blue accent,
+   with a serif italic for the emphasised words in headlines. */
 @theme {
-  --color-ink: #10231d;
-  --color-ink-soft: #35514a;
-  --color-muted: #5d6b65;
-  --color-faint: #7a8882;
-  --color-brand: #0f766e;
-  --color-brand-strong: #115e59;
-  --color-brand-soft: #eef6f4;
-  --color-sand: #c7762b;
-  --color-sand-strong: #a95f1c;
-  --color-sand-soft: #f7efe4;
-  --color-canvas: #f8f6f1;
-  --color-line: rgba(16, 35, 29, 0.09);
+  --color-ink: #0b1023;
+  --color-ink-soft: #2c3246;
+  --color-muted: #6b7080;
+  --color-faint: #a2a5af;
+  --color-brand: #1b2236;
+  --color-brand-strong: #0b1023;
+  --color-brand-soft: #f1f2f5;
+  /* Sky-blue accent for toggles, dots, links and calls to action. */
+  --color-accent: #2f7bf6;
+  --color-accent-strong: #1c63db;
+  --color-accent-soft: #e8f0fe;
+  --color-canvas: #f4f4f5;
+  --color-line: rgba(11, 16, 35, 0.08);
 
-  /* Latin + Cyrillic from Manrope; CJK falls back to the best system font per platform. */
+  /* Latin + Cyrillic from Inter; CJK falls back to the best system font per platform. */
   --font-sans:
-    var(--font-manrope), "PingFang SC", "Hiragino Sans", "Apple SD Gothic Neo", "Noto Sans CJK SC",
+    var(--font-inter), "PingFang SC", "Hiragino Sans", "Apple SD Gothic Neo", "Noto Sans CJK SC",
     "Noto Sans JP", "Noto Sans KR", "Microsoft YaHei", "Malgun Gothic", "Yu Gothic", ui-sans-serif, system-ui,
     sans-serif;
+  /* Tight grotesk for headlines and big numbers. */
+  --font-display:
+    var(--font-inter-tight), var(--font-inter), "PingFang SC", "Hiragino Sans", "Apple SD Gothic Neo",
+    "Noto Sans CJK SC", "Microsoft YaHei", "Malgun Gothic", ui-sans-serif, system-ui, sans-serif;
+  /* Serif italic for the *emphasised* words in headlines. */
+  --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
 
-  --shadow-soft: 0 18px 50px rgba(16, 35, 29, 0.06);
-  --shadow-lift: 0 28px 70px rgba(16, 35, 29, 0.12);
+  --shadow-soft: 0 12px 40px rgba(11, 16, 35, 0.05);
+  --shadow-lift: 0 30px 80px rgba(11, 16, 35, 0.16);
 
   --animate-marquee: marquee 45s linear infinite;
   --animate-float: float 14s ease-in-out infinite;
   --animate-float-slow: float 22s ease-in-out infinite reverse;
   --animate-scroll-cue: scroll-cue 1.8s ease-in-out infinite;
+  --animate-dash: dash 2.4s linear infinite;
 
   @keyframes marquee {
     to {
@@ -59,10 +69,16 @@
       opacity: 0;
     }
   }
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -24;
+    }
+  }
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6.5rem;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -81,14 +97,19 @@ html:is(:lang(zh-CN), :lang(ja), :lang(ko)) * {
 html:lang(ko) body {
   word-break: keep-all;
 }
+/* Latin serif italics have no CJK glyphs; keep emphasis upright in the sans face there. */
+html:is(:lang(zh-CN), :lang(ja), :lang(ko)) .text-em {
+  font-family: inherit;
+  font-style: normal;
+}
 
 ::selection {
-  background: rgba(15, 118, 110, 0.18);
-  color: #09201b;
+  background: rgba(47, 123, 246, 0.2);
+  color: #0b1023;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-brand);
+  outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
@@ -113,12 +134,32 @@ html:lang(ko) body {
   @apply py-20 md:py-28;
 }
 
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+/* Serif italic accent inside headlines ("Discover *Our Most Popular* Tours"). */
+@utility text-em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Big, tightly tracked grotesk headline. */
+@utility display-title {
+  font-family: var(--font-display);
+  @apply leading-[1] font-medium tracking-[-0.045em] text-balance;
+}
+
+/* Small uppercase label in a soft grey pill. */
 @utility section-eyebrow {
-  @apply mb-4 inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-4 py-2 text-xs font-semibold tracking-[0.2em] text-brand-strong uppercase;
+  @apply mb-6 inline-flex items-center gap-2 rounded-full bg-ink/5 px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-ink uppercase;
 }
 
 @utility section-title {
-  @apply text-3xl leading-tight font-bold tracking-[-0.035em] text-balance text-ink sm:text-4xl md:text-5xl;
+  font-family: var(--font-display);
+  @apply text-4xl leading-[1] font-medium tracking-[-0.045em] text-balance text-ink sm:text-5xl md:text-6xl;
 }
 
 @utility section-copy {
@@ -126,7 +167,7 @@ html:lang(ko) body {
 }
 
 @utility premium-card {
-  @apply rounded-[28px] border border-ink/8 bg-white shadow-soft;
+  @apply rounded-[32px] border border-ink/6 bg-white shadow-soft;
 }
 
 @utility field-label {
@@ -134,5 +175,10 @@ html:lang(ko) body {
 }
 
 @utility field-input {
-  @apply w-full rounded-2xl border border-ink/12 bg-white px-4 py-3.5 text-[15px] text-ink transition outline-none placeholder:text-faint hover:border-ink/20 focus:border-brand focus:ring-4 focus:ring-brand/12;
+  @apply w-full rounded-2xl border border-transparent bg-canvas px-4 py-3.5 text-[15px] text-ink transition outline-none placeholder:text-faint hover:border-ink/10 focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/12;
+}
+
+/* Frosted glass used on photo cards. */
+@utility glass {
+  @apply border border-white/25 bg-white/15 backdrop-blur-xl;
 }

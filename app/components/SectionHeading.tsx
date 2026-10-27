@@ -22,7 +22,6 @@ const SectionHeading = ({ eyebrow, title, description, as: Heading = "h2", align
       transition={{ duration: 0.6 }}
       className="section-eyebrow"
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-sand" aria-hidden="true" />
       {eyebrow}
     </motion.span>
     <Heading className="section-title">

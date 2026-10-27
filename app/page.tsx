@@ -4,100 +4,118 @@ import { useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Hero from "./components/Hero";
-import Destinations from "./components/Destinations";
-import FeaturedTours from "./components/FeaturedTours";
-import TravelTips from "./components/TravelTips";
+import AboutBento from "./components/AboutBento";
+import DayCarousel from "./components/DayCarousel";
+import RouteSection from "./components/RouteSection";
 import Features from "./components/Features";
-import Reviews from "./components/Reviews";
+import DayCards from "./components/DayCards";
+import SectionHeading from "./components/SectionHeading";
 import Button from "./components/Button";
-import { CheckIcon } from "./components/Icons";
+import { Accordion } from "./components/Accordion";
+import { ArrowRightIcon } from "./components/Icons";
+import { TripIcon } from "./components/TripIcons";
 import { Marquee, SplitText, useParallax } from "./components/motion";
 import { useLanguage } from "./context/LanguageContext";
-import { TOURS } from "./data/tours";
+import { TOUR } from "./data/tour";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+const FESTIVAL_DAYS = [4, 5]; // zero-based: Day 5 and Day 6
 
 export default function Home() {
   const { lang, t } = useLanguage();
+  const festivalRef = useRef<HTMLDivElement>(null);
+  const festivalY = useParallax(festivalRef, 50);
   const bannerRef = useRef<HTMLDivElement>(null);
   const bannerY = useParallax(bannerRef, 70);
-  const marqueeItems = Array.from(new Set(TOURS.map((tour) => tour.title[lang])));
 
   return (
     <div className="overflow-hidden">
       <Hero />
 
-      <div className="border-y border-ink/8 bg-ink py-5 text-lg font-bold tracking-[-0.02em] text-white/90 md:text-xl">
-        <Marquee items={marqueeItems} />
+      <div className="py-6 font-display text-2xl font-medium tracking-[-0.03em] text-ink/80 md:text-3xl">
+        <Marquee items={t.marquee} />
       </div>
 
-      <Destinations />
-      <FeaturedTours />
-      <TravelTips />
+      <AboutBento />
+      <DayCarousel />
+      <RouteSection />
 
-      <section>
-        <div className="container-shell">
-          <motion.div
-            initial={{ opacity: 0, y: 60, scale: 0.97 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 1, ease: EASE }}
-            className="relative isolate grid gap-10 overflow-hidden rounded-[36px] bg-brand-strong px-6 py-12 text-white sm:px-10 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-14 lg:py-16"
-          >
-            <div className="pointer-events-none absolute -top-24 -right-24 -z-10 h-80 w-80 animate-float rounded-full bg-sand/30 blur-3xl" aria-hidden="true" />
-            <div className="pointer-events-none absolute -bottom-32 -left-20 -z-10 h-96 w-96 animate-float-slow rounded-full bg-brand/60 blur-3xl" aria-hidden="true" />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07] bg-[radial-gradient(white_1px,transparent_1px)] bg-size-[22px_22px]"
-            />
-            <div>
-              <span className="inline-flex rounded-full border border-white/20 px-4 py-2 text-xs font-semibold tracking-[0.2em] text-white/80 uppercase">
-                {t.custom.eyebrow}
-              </span>
-              <h2 className="mt-5 text-3xl leading-tight font-bold tracking-[-0.035em] text-balance sm:text-4xl md:text-5xl">
-                <SplitText text={t.custom.title} delay={0.2} />
-              </h2>
-              <p className="mt-5 max-w-xl text-base leading-8 text-white/80 md:text-lg">{t.custom.description}</p>
+      {/* Golden Eagle Festival */}
+      <section className="px-2 sm:px-3">
+        <div className="relative isolate overflow-hidden rounded-[28px] bg-ink py-16 text-white sm:rounded-[40px] md:py-24">
+        <div aria-hidden="true" className="pointer-events-none absolute -top-40 -right-32 -z-10 h-[28rem] w-[28rem] animate-float rounded-full bg-accent/25 blur-3xl" />
+        <div className="container-shell grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+          <div ref={festivalRef} className="relative h-[380px] overflow-hidden rounded-[32px] sm:h-[480px] lg:h-[620px]">
+            <motion.div style={{ y: festivalY }} className="absolute -inset-y-16 inset-x-0">
+              <Image src={TOUR.festivalImage} alt={t.tour.days[4].title} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+            </motion.div>
+          </div>
+
+          <div>
+            <span className="inline-flex items-center rounded-full bg-white/10 px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-white uppercase">
+              {t.festival.eyebrow}
+            </span>
+            <h2 className="display-title mt-5 text-4xl sm:text-5xl md:text-6xl">
+              <SplitText text={t.festival.title} delay={0.1} />
+            </h2>
+            <p className="mt-5 max-w-xl text-base leading-8 text-white/75 md:text-lg">{t.festival.description}</p>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-2">
+              {FESTIVAL_DAYS.map((dayIndex, column) => (
+                <motion.div
+                  key={dayIndex}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  transition={{ duration: 0.7, delay: column * 0.12, ease: EASE }}
+                  className="rounded-[28px] bg-white/6 p-5"
+                >
+                  <span className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-semibold">{t.common.day(dayIndex + 1)}</span>
+                  <h3 className="mt-3 font-display text-2xl font-medium tracking-[-0.03em]">{t.festival.dayLabels[column]}</h3>
+                  <ul className="mt-4 space-y-2.5">
+                    {t.tour.days[dayIndex].activities.map((activity, i) => (
+                      <li key={activity} className="flex items-center gap-3 text-[15px] text-white/85">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
+                          <TripIcon name={TOUR.dayIcons[dayIndex][i]} className="h-4 w-4" />
+                        </span>
+                        {activity}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
             </div>
-            <div>
-              <ul className="space-y-3">
-                {t.custom.points.map((point, index) => (
-                  <motion.li
-                    key={point}
-                    initial={{ opacity: 0, x: 40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, amount: 0.6 }}
-                    transition={{ duration: 0.7, delay: 0.3 + index * 0.12, ease: EASE }}
-                    whileHover={{ x: 6 }}
-                    className="flex gap-3 rounded-2xl border border-white/10 bg-white/8 px-5 py-4 text-[15px] leading-7 text-white/90 backdrop-blur-sm transition-colors hover:bg-white/12"
-                  >
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sand">
-                      <CheckIcon className="h-3.5 w-3.5" />
-                    </span>
-                    {point}
-                  </motion.li>
-                ))}
-              </ul>
-              <Button href="/contact" variant="light" className="mt-6">
-                {t.custom.cta}
-              </Button>
-            </div>
-          </motion.div>
+
+            <Button href="/book" variant="secondary" size="lg" className="mt-9" rightIcon={<ArrowRightIcon className="h-4 w-4" />}>
+              {t.festival.cta}
+            </Button>
+          </div>
+        </div>
         </div>
       </section>
 
       <Features />
-      <Reviews />
+      <DayCards />
 
+      {/* FAQ */}
+      <section className="section-padding">
+        <div className="container-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <SectionHeading eyebrow={t.faq.eyebrow} title={t.faq.title} description={t.faq.description} className="lg:sticky lg:top-32 lg:self-start" />
+          {/* Remount on language change so the open item resets cleanly. */}
+          <Accordion key={lang} items={t.faq.items} idPrefix="faq" />
+        </div>
+      </section>
+
+      {/* Closing banner */}
       <section className="section-padding">
         <div className="container-shell">
-          <div ref={bannerRef} className="relative isolate overflow-hidden rounded-[36px]">
+          <div ref={bannerRef} className="relative isolate overflow-hidden rounded-[40px]">
             <motion.div style={{ y: bannerY }} className="absolute -inset-y-24 inset-x-0 -z-20">
-              <Image src="/oooo.jpg" alt="" fill sizes="(min-width: 1280px) 1280px, 100vw" className="object-cover" />
+              <Image src={TOUR.bannerImage} alt="" fill sizes="(min-width: 1280px) 1280px, 100vw" className="object-cover" />
             </motion.div>
-            <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,22,18,0.25)_0%,rgba(9,22,18,0.7)_100%)]" />
+            <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(11,16,35,0.3)_0%,rgba(11,16,35,0.8)_100%)]" />
             <div className="flex min-h-[440px] flex-col items-center justify-center px-6 py-16 text-center text-white sm:px-10 md:min-h-[520px]">
-              <h2 className="max-w-3xl text-3xl leading-[1.08] font-extrabold tracking-[-0.045em] text-balance md:text-6xl">
+              <h2 className="display-title max-w-4xl text-4xl md:text-6xl">
                 <SplitText text={t.banner.title} />
               </h2>
               <motion.p
@@ -115,7 +133,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ type: "spring", stiffness: 200, damping: 16, delay: 0.6 }}
               >
-                <Button href="/tours" variant="secondary" size="lg" className="mt-8">
+                <Button href="/book" variant="light" size="lg" className="mt-8">
                   {t.banner.cta}
                 </Button>
               </motion.div>

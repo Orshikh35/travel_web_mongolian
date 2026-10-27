@@ -7,10 +7,8 @@ import Button from "../components/Button";
 import SectionHeading from "../components/SectionHeading";
 import { CheckIcon, ChatIcon, ClockIcon, PinIcon } from "../components/Icons";
 import { useLanguage } from "../context/LanguageContext";
-import { findTourBySlug } from "../data/tours";
+import { COMPANY } from "../data/company";
 import { postJson, SubmitStatus } from "../lib/postJson";
-
-const INFO_ICONS = [ChatIcon, ClockIcon, PinIcon];
 
 const ContactView = () => {
   const { lang, t } = useLanguage();
@@ -19,10 +17,30 @@ const ContactView = () => {
   const [form, setForm] = useState(() => ({
     name: "",
     email: "",
-    // Arriving from a tour page's "Ask a question" pre-fills the subject.
-    subject: findTourBySlug(searchParams.get("tour") ?? undefined)?.title[lang] ?? "",
+    // Links like /contact?subject=… can pre-fill the subject.
+    subject: searchParams.get("subject")?.slice(0, 200) ?? "",
     message: "",
   }));
+
+  const infoCards = [
+    {
+      icon: ChatIcon,
+      title: c.reachTitle,
+      lines: [
+        <a key="mail" href={`mailto:${COMPANY.email}`} className="font-semibold text-ink underline-offset-4 hover:text-brand hover:underline">
+          {COMPANY.email}
+        </a>,
+        <a key="tel" href={COMPANY.phoneHref} className="font-semibold text-ink underline-offset-4 hover:text-brand hover:underline">
+          {COMPANY.phoneDisplay}
+        </a>,
+        <a key="wa" href={COMPANY.whatsappHref} target="_blank" rel="noreferrer" className="underline-offset-4 hover:text-brand hover:underline">
+          {c.reachNote}
+        </a>,
+      ],
+    },
+    { icon: ClockIcon, title: c.hoursTitle, lines: c.hoursLines },
+    { icon: PinIcon, title: c.officeTitle, lines: c.officeLines },
+  ];
   const [status, setStatus] = useState<SubmitStatus>("idle");
 
   const update = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -111,7 +129,7 @@ const ContactView = () => {
                   </div>
 
                   {status === "error" ? (
-                    <p role="alert" className="mt-5 rounded-2xl border border-sand/30 bg-sand-soft px-5 py-4 text-sm font-semibold text-sand-strong">
+                    <p role="alert" className="mt-5 rounded-2xl border border-accent/30 bg-accent-soft px-5 py-4 text-sm font-semibold text-accent-strong">
                       {t.common.errorGeneric}
                     </p>
                   ) : null}
@@ -125,8 +143,8 @@ const ContactView = () => {
           </motion.div>
 
           <div className="grid content-start gap-5">
-            {c.infoCards.map((card, index) => {
-              const Icon = INFO_ICONS[index % INFO_ICONS.length];
+            {infoCards.map((card, index) => {
+              const Icon = card.icon;
               return (
                 <motion.article
                   key={card.title}
@@ -141,8 +159,8 @@ const ContactView = () => {
                   <div>
                     <h3 className="text-lg font-bold text-ink">{card.title}</h3>
                     <div className="mt-2 space-y-1 text-[15px] leading-7 text-muted">
-                      {card.lines.map((line) => (
-                        <p key={line}>{line}</p>
+                      {card.lines.map((line, lineIndex) => (
+                        <p key={lineIndex}>{line}</p>
                       ))}
                     </div>
                   </div>
@@ -156,8 +174,8 @@ const ContactView = () => {
               transition={{ delay: 0.32 }}
               className="rounded-[28px] bg-ink p-7 text-white"
             >
-              <p className="text-xs font-bold tracking-[0.2em] text-sand uppercase">{c.noteEyebrow}</p>
-              <h3 className="mt-3 text-xl leading-snug font-bold">{c.noteTitle}</h3>
+              <p className="text-xs font-bold tracking-[0.2em] text-accent uppercase">{c.noteEyebrow}</p>
+              <h3 className="mt-3 font-display text-2xl leading-snug font-medium tracking-[-0.03em]">{c.noteTitle}</h3>
               <p className="mt-3 text-sm leading-7 text-white/70">{c.noteBody}</p>
             </motion.div>
           </div>

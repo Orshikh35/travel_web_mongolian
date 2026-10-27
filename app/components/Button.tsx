@@ -27,18 +27,18 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "group/btn relative isolate inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-semibold whitespace-nowrap transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-60";
+    "group/btn relative isolate inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-medium whitespace-nowrap transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-60";
 
   const variants = {
-    primary: "bg-ink text-white shadow-[0_18px_44px_rgba(16,35,29,0.18)] hover:-translate-y-0.5 hover:bg-brand-strong",
-    secondary: "bg-sand text-white shadow-[0_18px_44px_rgba(199,118,43,0.22)] hover:-translate-y-0.5 hover:bg-sand-strong",
-    outline: "border border-ink/14 bg-white text-ink hover:border-brand/40 hover:text-brand-strong",
+    primary: "bg-ink text-white hover:-translate-y-0.5 hover:bg-ink-soft",
+    secondary: "bg-accent text-white shadow-[0_14px_36px_rgba(47,123,246,0.28)] hover:-translate-y-0.5 hover:bg-accent-strong",
+    outline: "border border-ink/12 bg-white text-ink hover:border-ink/30",
     ghost: "bg-transparent text-ink hover:bg-ink/5",
-    light: "bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:bg-sand-soft",
+    light: "bg-white text-ink shadow-[0_14px_36px_rgba(0,0,0,0.14)] hover:-translate-y-0.5 hover:bg-canvas",
   } as const;
 
   const sizes = {
-    sm: "px-4 py-2.5 text-sm",
+    sm: "px-5 py-2.5 text-sm",
     md: "px-6 py-3.5 text-sm sm:text-[15px]",
     lg: "px-8 py-4 text-base",
   } as const;

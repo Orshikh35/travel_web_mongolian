@@ -51,6 +51,31 @@ const splitPiece: Variants = {
   visible: { y: "0%", opacity: 1, transition: { duration: 0.75, ease: EASE } },
 };
 
+// Headlines may wrap words in *asterisks* to set them in the serif italic accent face.
+type Segment = { text: string; em: boolean };
+const toSegments = (text: string): Segment[] =>
+  text
+    .split("*")
+    .map((part, index) => ({ text: part, em: index % 2 === 1 }))
+    .filter((segment) => segment.text);
+
+export const plainText = (text: string) => text.replaceAll("*", "");
+
+// Static version of the *emphasis* markup, for headlines that don't animate.
+export const Emphasis = ({ text }: { text: string }) => (
+  <>
+    {toSegments(text).map((segment, index) =>
+      segment.em ? (
+        <em key={index} className="text-em">
+          {segment.text}
+        </em>
+      ) : (
+        <React.Fragment key={index}>{segment.text}</React.Fragment>
+      ),
+    )}
+  </>
+);
+
 // Reveals text word by word (or character by character for scripts without spaces, like 中文 / 日本語).
 export const SplitText = ({
   text,
@@ -63,8 +88,11 @@ export const SplitText = ({
   delay?: number;
   onView?: boolean;
 }) => {
-  const hasSpaces = text.includes(" ");
-  const pieces = hasSpaces ? text.split(" ") : Array.from(text);
+  const plain = plainText(text);
+  const hasSpaces = plain.includes(" ");
+  const pieces = toSegments(text).flatMap(({ text: part, em }) =>
+    (hasSpaces ? part.split(" ") : Array.from(part)).filter(Boolean).map((piece) => ({ piece, em })),
+  );
   const stagger = hasSpaces ? 0.06 : 0.025;
   const trigger = onView
     ? { whileInView: "visible", viewport: { once: true, amount: 0.5 } }
@@ -80,14 +108,17 @@ export const SplitText = ({
       variants={splitContainer}
       custom={{ stagger, delay }}
     >
-      <span className="sr-only">{text}</span>
-      {pieces.map((piece, index) => (
-        <span key={`${piece}-${index}`} aria-hidden="true" className="inline-block overflow-hidden pb-[0.12em] align-top">
-          <motion.span className="inline-block" variants={splitPiece}>
-            {piece}
-            {hasSpaces && index < pieces.length - 1 ? " " : ""}
-          </motion.span>
-        </span>
+      <span className="sr-only">{plain}</span>
+      {pieces.map(({ piece, em }, index) => (
+        // The space sits between the clipped word boxes so lines can still wrap there.
+        <React.Fragment key={`${piece}-${index}`}>
+          <span aria-hidden="true" className="inline-block overflow-hidden pb-[0.12em] align-top">
+            <motion.span className={`inline-block ${em ? "text-em pr-[0.06em]" : ""}`} variants={splitPiece}>
+              {piece}
+            </motion.span>
+          </span>
+          {hasSpaces && index < pieces.length - 1 ? " " : null}
+        </React.Fragment>
       ))}
     </motion.span>
   );
@@ -100,17 +131,20 @@ export const CountUp = ({ value, className = "" }: { value: string; className?: 
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    const match = value.match(/^(\d+(?:\.\d+)?)(.*)$/);
+    // Also accepts thousands separators like "4,374 m" or "4 374 м" and keeps them while counting.
+    const match = value.match(/^(\d{1,3}(?:[,\u00a0\u202f ]\d{3})+|\d+(?:\.\d+)?)(.*)$/);
     if (!match || !inView || reduce || !ref.current) return;
-    const target = Number(match[1]);
-    const decimals = match[1].includes(".") ? match[1].split(".")[1].length : 0;
+    const separator = match[1].match(/^\d{1,3}([,\u00a0\u202f ])\d{3}/)?.[1];
+    const target = Number(separator ? match[1].replaceAll(separator, "") : match[1]);
+    const decimals = !separator && match[1].includes(".") ? match[1].split(".")[1].length : 0;
     const suffix = match[2];
     const node = ref.current;
+    const format = (n: number) => (separator ? Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator) : n.toFixed(decimals));
     const controls = animate(0, target, {
       duration: 1.6,
       ease: EASE,
       onUpdate: (latest) => {
-        node.textContent = `${latest.toFixed(decimals)}${suffix}`;
+        node.textContent = `${format(latest)}${suffix}`;
       },
     });
     return () => controls.stop();
@@ -207,7 +241,7 @@ export const Marquee = ({ items, className = "" }: { items: string[]; className?
         {items.map((item) => (
           <li key={`${copy}-${item}`} className="flex items-center gap-10 whitespace-nowrap">
             <span>{item}</span>
-            <span aria-hidden="true" className="text-sand">
+            <span aria-hidden="true" className="text-accent">
               ✦
             </span>
           </li>

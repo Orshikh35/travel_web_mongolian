@@ -7,17 +7,22 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring } fr
 import LanguageSwitcher, { LanguageGrid } from "./LanguageSwitcher";
 import Button from "./Button";
 import { useLanguage } from "../context/LanguageContext";
+import { EagleIcon } from "./Icons";
 
 const subscribeToScroll = (callback: () => void) => {
   window.addEventListener("scroll", callback, { passive: true });
   return () => window.removeEventListener("scroll", callback);
 };
 
+// Round night-navy badge with an eagle over the Altai skyline.
 export const BrandMark = ({ className = "h-10 w-10" }: { className?: string }) => (
   <span
-    className={`flex shrink-0 items-center justify-center rounded-full bg-linear-to-br from-sand via-[#e9b679] to-brand text-[13px] font-extrabold text-white ${className}`}
+    className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink text-white ring-1 ring-white/15 ${className}`}
   >
-    NH
+    <EagleIcon className="relative z-10 h-[62%] w-[62%] -translate-y-[8%]" />
+    <svg aria-hidden="true" viewBox="0 0 40 12" className="absolute inset-x-0 bottom-0 h-[34%] w-full text-accent" fill="currentColor">
+      <path d="M0 12V9l6-5 4 3 6-6 6 5 4-2 6 5 4-3 4 3v3z" />
+    </svg>
   </span>
 );
 
@@ -37,7 +42,7 @@ const Navbar = () => {
   });
 
   // Pages that open with a full-bleed photo get a transparent header until the user scrolls.
-  const overHero = pathname === "/" || (pathname.startsWith("/tours/") && pathname.split("/").length === 3);
+  const overHero = pathname === "/" || pathname === "/tour";
   const solid = !overHero || scrolled || isOpen;
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
@@ -47,7 +52,7 @@ const Navbar = () => {
     <motion.div
       aria-hidden="true"
       style={{ scaleX: progress }}
-      className="fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-linear-to-r from-sand via-[#e9b679] to-brand"
+      className="fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-linear-to-r from-accent to-ink"
     />
     <motion.header
       animate={{ y: hidden && !isOpen ? "-130%" : "0%" }}
@@ -57,13 +62,13 @@ const Navbar = () => {
       <div
         className={`mx-auto flex w-full max-w-7xl items-center justify-between gap-4 rounded-full border px-4 py-3 transition-all duration-300 sm:px-5 lg:relative ${
           solid
-            ? "border-ink/8 bg-white/90 text-ink shadow-[0_18px_50px_rgba(16,35,29,0.10)] backdrop-blur-xl"
-            : "border-white/18 bg-black/20 text-white backdrop-blur-md"
+            ? "border-ink/6 bg-white/85 text-ink shadow-[0_12px_40px_rgba(11,16,35,0.08)] backdrop-blur-xl"
+            : "border-white/20 bg-white/10 text-white backdrop-blur-xl"
         }`}
       >
         <Link href="/" className="group flex items-center gap-3" onClick={() => setIsOpen(false)}>
-          <BrandMark className="h-10 w-10 transition-transform duration-500 group-hover:rotate-[360deg]" />
-          <span className="text-base font-bold tracking-[-0.02em]">{t.common.brand}</span>
+          <BrandMark className="h-10 w-10 transition-transform duration-500 group-hover:scale-110" />
+          <span className="font-display text-lg leading-none font-semibold tracking-[-0.03em]">{t.common.brand}</span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:absolute lg:left-1/2 lg:flex lg:-translate-x-1/2">
@@ -74,7 +79,7 @@ const Navbar = () => {
                 key={link.href}
                 href={link.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
+                className={`relative rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
                   active
                     ? solid
                       ? "text-white"
@@ -100,7 +105,7 @@ const Navbar = () => {
 
         <div className="hidden items-center gap-2 lg:flex">
           <LanguageSwitcher tone={solid ? "onLight" : "onDark"} />
-          <Button href="/contact" variant={solid ? "primary" : "light"} size="sm" className="h-11">
+          <Button href="/book" variant={solid ? "secondary" : "light"} size="sm" className="h-11">
             {t.nav.cta}
           </Button>
         </div>
@@ -141,7 +146,7 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -14 }}
             transition={{ duration: 0.2 }}
-            className="mx-auto mt-3 max-h-[calc(100dvh-6rem)] w-full max-w-7xl overflow-y-auto rounded-[28px] border border-white/10 bg-ink p-5 text-white shadow-[0_24px_70px_rgba(16,35,29,0.35)] lg:hidden"
+            className="mx-auto mt-3 max-h-[calc(100dvh-6rem)] w-full max-w-7xl overflow-y-auto rounded-[28px] border border-white/10 bg-ink p-5 text-white shadow-[0_24px_70px_rgba(11,16,35,0.35)] lg:hidden"
           >
             <nav className="flex flex-col gap-1">
               {t.nav.links.map((link, index) => (
@@ -169,7 +174,7 @@ const Navbar = () => {
               <LanguageGrid />
             </div>
             <div className="mt-5" onClick={() => setIsOpen(false)}>
-              <Button href="/contact" variant="secondary" className="w-full">
+              <Button href="/book" variant="secondary" className="w-full">
                 {t.nav.cta}
               </Button>
             </div>

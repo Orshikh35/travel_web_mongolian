@@ -1,37 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Eagle Land Tours
 
-## Getting Started
+Website for **Eagle Land Tours** and its 7-day program *Altai & Golden Eagle Festival* in Bayan-Ölgii, Western Mongolia:
+Ölgii → Altai Tavan Bogd → Potanin Glacier → Khoton & Khurgan lakes, Baga Turgen Waterfall → eagle hunter family in Ulaankhus → two days at the Golden Eagle Festival → departure.
 
-First, run the development server:
+Next.js 16 · React 19 · Tailwind CSS 4 · Framer Motion. Six languages: Mongolian, English, Russian, Chinese, Korean, Japanese.
+
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build && npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Booking and contact forms email the office through Resend. Set in `.env`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+RESEND_API_KEY=...
+BOOKING_EMAIL_TO=office@example.com          # optional
+BOOKING_EMAIL_FROM="Eagle Land Tours <bookings@your-domain>"   # optional
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things live
 
-## Learn More
+| What | File |
+| --- | --- |
+| Company email, phone, WhatsApp, booking prefix | `app/data/company.ts` |
+| Price, max group size, photos, icons per day | `app/data/tour.ts` |
+| All text (program, FAQ, pages) per language | `app/i18n/dictionaries/{en,mn,ru,zh,ko,ja}.ts` |
+| Photos | `public/images/` |
+| Printed day cards (posters) | `public/program/day-1.webp` … `day-7.webp` |
 
-To learn more about Next.js, take a look at the following resources:
+`en.ts` is the source of truth: every other language must have the same keys and the same number of days and activities
+(icons and photos are matched by position). TypeScript fails the build if a language file drifts.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Before going live
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Replace the placeholder email/phone in `app/data/company.ts`.
+- Set `priceFrom` in `app/data/tour.ts` (0 shows “Price on request”).
+- Update `tour.departures.festival` once the 2027 festival dates are announced.
+- Check the *included / not included* lists in the dictionaries against what the company actually offers.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# travel_web_mongolian
+Pages: `/` home · `/tour` full program · `/book` booking request · `/about` · `/contact`. Old `/tours/*` links redirect to `/tour`.

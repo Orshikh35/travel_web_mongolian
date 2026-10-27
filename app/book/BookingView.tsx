@@ -5,13 +5,14 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "../components/Button";
 import SectionHeading from "../components/SectionHeading";
-import { ChevronDownIcon, ClockIcon, PinIcon, ShieldIcon } from "../components/Icons";
+import { CalendarIcon, ChevronDownIcon, ClockIcon, PinIcon, ShieldIcon } from "../components/Icons";
 import { useLanguage } from "../context/LanguageContext";
-import { TOURS, findTourBySlug } from "../data/tours";
+import { DEPARTURES, DepartureKey, TOUR, isDeparture } from "../data/tour";
 import { formatDate, formatPrice, todayIso } from "../lib/format";
 import { postJson, SubmitStatus } from "../lib/postJson";
 
-const clampTravelers = (value: number) => (Number.isFinite(value) ? Math.min(50, Math.max(1, Math.round(value))) : 1);
+const clampTravelers = (value: number) =>
+  Number.isFinite(value) ? Math.min(TOUR.maxTravelers, Math.max(1, Math.round(value))) : 1;
 
 const BookingView = () => {
   const { lang, t } = useLanguage();
@@ -19,18 +20,21 @@ const BookingView = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [form, setForm] = useState(() => ({
-    name: "",
-    email: "",
-    phone: "",
-    tour: findTourBySlug(searchParams.get("tour") ?? undefined)?.slug ?? "",
-    date: searchParams.get("date") ?? "",
-    travelers: clampTravelers(Number(searchParams.get("travelers") ?? 2)),
-    notes: "",
-  }));
+  const [form, setForm] = useState(() => {
+    const departureParam = searchParams.get("departure");
+    return {
+      name: "",
+      email: "",
+      phone: "",
+      departure: (isDeparture(departureParam) ? departureParam : "festival") as DepartureKey,
+      date: searchParams.get("date") ?? "",
+      travelers: clampTravelers(Number(searchParams.get("travelers") ?? 2)),
+      notes: "",
+    };
+  });
   const [status, setStatus] = useState<SubmitStatus>("idle");
 
-  const tour = findTourBySlug(form.tour);
+  const isPrivate = form.departure === "private";
   const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((current) => ({ ...current, [key]: value }));
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -38,15 +42,15 @@ const BookingView = () => {
     setStatus("sending");
     const result = await postJson<{ reference: string }>("/api/book", {
       ...form,
-      tourTitle: tour ? tour.title.en : "",
+      date: isPrivate ? form.date : "",
       lang,
     });
     if (!result) {
       setStatus("error");
       return;
     }
-    const params = new URLSearchParams({ ref: result.reference, tour: form.tour, travelers: String(form.travelers) });
-    if (form.date) params.set("date", form.date);
+    const params = new URLSearchParams({ ref: result.reference, departure: form.departure, travelers: String(form.travelers) });
+    if (isPrivate && form.date) params.set("date", form.date);
     router.push(`/book/confirmation?${params.toString()}`);
   };
 
@@ -60,7 +64,7 @@ const BookingView = () => {
             <li key={step} className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-sm font-semibold text-ink-soft shadow-soft">
               <span
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                  index === 0 ? "bg-brand text-white" : "bg-canvas text-faint"
+                  index === 0 ? "bg-accent text-white" : "bg-canvas text-faint"
                 }`}
               >
                 {index + 1}
@@ -116,28 +120,26 @@ const BookingView = () => {
               <h2 className="text-xl font-bold text-ink">{b.tripTitle}</h2>
               <div className="mt-6 grid gap-5 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <label htmlFor="book-tour" className="field-label">
-                    {b.tour}
+                  <label htmlFor="book-departure" className="field-label">
+                    {b.departure}
                   </label>
                   <div className="relative">
                     <select
-                      id="book-tour"
+                      id="book-departure"
                       required
-                      value={form.tour}
-                      onChange={(e) => update("tour", e.target.value)}
+                      value={form.departure}
+                      onChange={(e) => update("departure", e.target.value as DepartureKey)}
                       className="field-input cursor-pointer appearance-none pr-11"
                     >
-                      <option value="" disabled>
-                        {b.selectTour}
-                      </option>
-                      {TOURS.map((item) => (
-                        <option key={item.slug} value={item.slug}>
-                          {item.title[lang]}
+                      {DEPARTURES.map((key) => (
+                        <option key={key} value={key}>
+                          {t.tour.departures[key]}
                         </option>
                       ))}
                     </select>
                     <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-faint" />
                   </div>
+                  {!isPrivate ? <p className="mt-2 text-sm leading-6 text-faint">{t.tour.departureNote}</p> : null}
                 </div>
                 <div>
                   <label htmlFor="book-date" className="field-label">
@@ -146,13 +148,18 @@ const BookingView = () => {
                   <input
                     id="book-date"
                     type="date"
-                    required
+                    required={isPrivate}
+                    disabled={!isPrivate}
                     min={todayIso()}
                     suppressHydrationWarning
-                    value={form.date}
+                    value={isPrivate ? form.date : ""}
                     onChange={(e) => update("date", e.target.value)}
-                    className="field-input"
+                    aria-describedby="book-date-hint"
+                    className="field-input disabled:cursor-not-allowed disabled:bg-canvas disabled:text-faint"
                   />
+                  <p id="book-date-hint" className="mt-2 text-xs text-faint">
+                    {b.dateHint}
+                  </p>
                 </div>
                 <div>
                   <label htmlFor="book-travelers" className="field-label">
@@ -162,7 +169,7 @@ const BookingView = () => {
                     id="book-travelers"
                     type="number"
                     min={1}
-                    max={50}
+                    max={TOUR.maxTravelers}
                     required
                     value={form.travelers}
                     onChange={(e) => update("travelers", clampTravelers(Number(e.target.value)))}
@@ -186,7 +193,7 @@ const BookingView = () => {
             </div>
 
             {status === "error" ? (
-              <p role="alert" className="rounded-2xl border border-sand/30 bg-sand-soft px-5 py-4 text-sm font-semibold text-sand-strong">
+              <p role="alert" className="rounded-2xl border border-accent/30 bg-accent-soft px-5 py-4 text-sm font-semibold text-accent-strong">
                 {t.common.errorGeneric}
               </p>
             ) : null}
@@ -198,46 +205,47 @@ const BookingView = () => {
 
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <div className="premium-card overflow-hidden">
-              {tour ? (
-                <div className="relative aspect-video">
-                  <Image src={tour.coverImage} alt={tour.title[lang]} fill sizes="380px" className="object-cover" />
-                </div>
-              ) : null}
+              <div className="relative aspect-video">
+                <Image src={TOUR.heroImage} alt={t.tour.name} fill sizes="380px" className="object-cover object-[80%_center]" />
+              </div>
               <div className="p-6">
                 <h2 className="text-xs font-bold tracking-[0.18em] text-faint uppercase">{b.summaryTitle}</h2>
-                {tour ? (
-                  <>
-                    <p className="mt-3 text-lg leading-snug font-bold text-ink">{tour.title[lang]}</p>
-                    <div className="mt-2 space-y-1.5 text-sm text-muted">
-                      <p className="flex items-center gap-2">
-                        <PinIcon className="h-4 w-4" />
-                        {tour.destination[lang]}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <ClockIcon className="h-4 w-4" />
-                        {tour.duration[lang]}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <p className="mt-3 text-sm text-muted">{b.selectTour}</p>
-                )}
+                <p className="mt-3 font-display text-2xl leading-tight font-medium tracking-[-0.03em] text-ink">{t.tour.name}</p>
+                <div className="mt-2 space-y-1.5 text-sm text-muted">
+                  <p className="flex items-center gap-2">
+                    <PinIcon className="h-4 w-4" />
+                    {t.tour.startEnd}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <ClockIcon className="h-4 w-4" />
+                    {t.tour.duration}
+                  </p>
+                </div>
 
                 <dl className="mt-5 space-y-3 border-t border-ink/8 pt-5 text-sm">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted">{b.date}</dt>
-                    <dd className="text-right font-semibold text-ink">{form.date ? formatDate(form.date, lang) : "—"}</dd>
+                    <dt className="text-muted">{b.departure}</dt>
+                    <dd className="text-right font-semibold text-ink">{t.tour.departures[form.departure]}</dd>
                   </div>
+                  {isPrivate ? (
+                    <div className="flex justify-between gap-4">
+                      <dt className="flex items-center gap-1.5 text-muted">
+                        <CalendarIcon className="h-4 w-4" />
+                        {b.date}
+                      </dt>
+                      <dd className="text-right font-semibold text-ink">{form.date ? formatDate(form.date, lang) : "—"}</dd>
+                    </div>
+                  ) : null}
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">{b.travelers}</dt>
                     <dd className="font-semibold text-ink">{t.common.travelers(form.travelers)}</dd>
                   </div>
-                  {tour && tour.priceFrom > 0 ? (
-                    <div className="flex justify-between gap-4 border-t border-ink/8 pt-3 text-base">
-                      <dt className="font-semibold text-ink">{b.estTotal}</dt>
-                      <dd className="font-extrabold text-ink">{formatPrice(tour.priceFrom * form.travelers, tour.currency, lang)}</dd>
-                    </div>
-                  ) : null}
+                  <div className="flex justify-between gap-4 border-t border-ink/8 pt-3 text-base">
+                    <dt className="font-semibold text-ink">{t.common.from}</dt>
+                    <dd className="font-extrabold text-ink">
+                      {TOUR.priceFrom > 0 ? `${formatPrice(TOUR.priceFrom, TOUR.currency, lang)} / ${t.common.perPerson}` : t.common.onRequest}
+                    </dd>
+                  </div>
                 </dl>
 
                 <p className="mt-5 flex gap-3 rounded-2xl bg-brand-soft p-4 text-sm leading-6 text-brand-strong">

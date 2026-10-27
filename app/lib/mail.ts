@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 const MAIL_TO = process.env.BOOKING_EMAIL_TO ?? "batorshikh35@gmail.com";
-const MAIL_FROM = process.env.BOOKING_EMAIL_FROM ?? "Nomad Horizon <onboarding@resend.dev>";
+const MAIL_FROM = process.env.BOOKING_EMAIL_FROM ?? "Eagle Land Tours <onboarding@resend.dev>";
 
 const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -25,7 +25,7 @@ export const sendMail = async ({ subject, heading, rows, replyTo }: MailInput) =
   }
 
   const html = `
-    <h2 style="font-family:sans-serif;color:#10231d">${escapeHtml(heading)}</h2>
+    <h2 style="font-family:sans-serif;color:#0e1d36">${escapeHtml(heading)}</h2>
     <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse">
       ${rows
         .filter(([, value]) => value)
